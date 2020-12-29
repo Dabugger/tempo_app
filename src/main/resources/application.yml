@@ -1,0 +1,16 @@
+
+server:
+  port: 8083
+  error:
+    include-stacktrace: never
+security:
+  key: 123
+jwt:
+  secret: secretkey1234
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/tempodb
+    username: postgres
+    password: mysecretpassword
+    driverClassName: org.postgresql.Driver
