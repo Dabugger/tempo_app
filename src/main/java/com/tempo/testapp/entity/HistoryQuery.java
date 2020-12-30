@@ -28,4 +28,8 @@ public class HistoryQuery {
         this.number1 = number1;
         this.number2 = number2;
     }
+    public HistoryQuery(String endpoint, String user_name){
+        this.endpoint = endpoint;
+        this.user_name = user_name;
+    }
 }

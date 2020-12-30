@@ -17,9 +17,15 @@ public class HistoryServiceImpl implements HistoryService{
     HistoryRepository historyRepository;
 
     @Override
-    public void addHistory(String endpoint, String username, int num1, int num2) {
+    public void addHistorySuma(String endpoint, String username, int num1, int num2) {
         System.out.println("INSERT INTO HISTORY TABLE.");
         HistoryQuery historyQuery = new HistoryQuery(endpoint, username, num1, num2);
+        historyRepository.save(historyQuery);
+    }
+
+    @Override
+    public void addHistoryEndpoint(String endpoint, String username) {
+        HistoryQuery historyQuery = new HistoryQuery(endpoint, username);
         historyRepository.save(historyQuery);
     }
 

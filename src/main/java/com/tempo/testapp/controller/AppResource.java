@@ -30,9 +30,9 @@ public class AppResource {
     /*TODO
     *  Los requerimientos son los siguientes:
 1. Debes desarrollar una API REST en Spring Boot con las siguientes funcionalidades:
-DONE a. Sign up usuarios.
-DONE b. Login usuarios vía JWT.
-DONE c. Sumar dos números. Este endpoint debe retornar el resultado de la suma y puede ser consumido solo por usuarios logueados.
+a. Sign up usuarios.
+b. Login usuarios vía JWT.
+c. Sumar dos números. Este endpoint debe retornar el resultado de la suma y puede ser consumido solo por usuarios logueados.
 d. Historial de todos los llamados al endpoint de suma. Responder en Json, con data paginada y el límite se encuentre en properties.
 e. Logout usuarios.
 f. El historial y la información de los usuarios se debe almacenar en una database PostgreSQL.
@@ -80,8 +80,8 @@ g. Incluir errores http. Mensajes y descripciones para la serie 400.
         Map<String,String> map = new HashMap<>();
         map.put("msg", "Sesion Iniciada.");
 
-       /// final String jwt = jwtUtil.generateToken(user);
-        //map.put("token", jwt);
+        historyService.addHistoryEndpoint("/login",user_name);
+
         return user;
     }
 
@@ -112,25 +112,19 @@ g. Incluir errores http. Mensajes y descripciones para la serie 400.
             map.put("msg", e.toString().substring(e.toString().lastIndexOf(":")+2));
             System.out.println("Exception ->"+e);
         }
+        historyService.addHistoryEndpoint("/signup",user_name);
 
-        //final UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUser_name());
-    //    final String jwt = jwtUtil.generateToken(user);
-      //  map.put("token", jwt);
         return new ResponseEntity<>(map,HttpStatus.OK);
     }
 
     @GetMapping("/calcularSuma/{a}+{b}")
     public ResponseEntity<Map<String,String>> sumarDosNumeros(@PathVariable("a") int a, @PathVariable("b") int b, HttpServletRequest httpServletRequest){
-      //TODO AUTH
-
-        //can be consumed only by logged in users
-        //TODO ADD TO HISTORY
 
         final String authorizationHeader = httpServletRequest.getHeader("Authorization");
         String jwt = authorizationHeader.substring(7);
         String username = jwtUtil.getUsernameFromToken(jwt);
 
-        historyService.addHistory("/calcularSuma",username, a,b);
+        historyService.addHistorySuma("/calcularSuma",username, a,b);
 
         Map<String, String> map = new HashMap<>();
         map.put("msg", "Resultado: "+(a+b));
@@ -138,10 +132,14 @@ g. Incluir errores http. Mensajes y descripciones para la serie 400.
     }
 
     @GetMapping("/history")
-    public List<HistoryQuery> history(@RequestParam("size") Integer size, @RequestParam("page") Integer page){
+    public List<HistoryQuery> history(@RequestParam("size") Integer size, @RequestParam("page") Integer page, HttpServletRequest httpServletRequest){
         //must be connected to db
         //return json, paginated results. limit from {history.limitperpage}
+        final String authorizationHeader = httpServletRequest.getHeader("Authorization");
+        String jwt = authorizationHeader.substring(7);
+        String username = jwtUtil.getUsernameFromToken(jwt);
 
+        historyService.addHistoryEndpoint("/history",username);
         return historyService.getHistory(page, size);
     }
 
@@ -149,20 +147,5 @@ g. Incluir errores http. Mensajes y descripciones para la serie 400.
     public String logout(){
         return "logout";
     }
-    @PostMapping("/authenticate")
-    public JwtResponse authenticate(@RequestBody JwtRequest jwtRequest) throws Exception {
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(jwtRequest.getUsername(), jwtRequest.getPassword())
-            );
-        } catch (BadCredentialsException e) {
-            //e.printStackTrace();
-            throw new Exception("Incorrect username or password",e);
-        }
 
-        ResponseEntity user = userService.validateUser(jwtRequest.getUsername(),"todo:fix:email",jwtRequest.getPassword());
-        //final UserDetails userDetails = userDetailsService.loadUserByUsername(jwtRequest.getUsername());
-       // final String jwt = jwtUtil.generateToken(user);
-        return new JwtResponse("abc", "testuser");
-    }
 }

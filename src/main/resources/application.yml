@@ -1,6 +1,6 @@
 
 server:
-  port: 8083
+  port: 8080
   error:
     include-stacktrace: never
 security:
@@ -10,14 +10,14 @@ jwt:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/tempodb
+    url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
     password: mysecretpassword
     driverClassName: org.postgresql.Driver
   jpa:
     show-sql: true
     hibernate:
-      #ddl-auto: create-drop
+      ddl-auto: update
       naming:
         implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyHbmImpl
         physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
