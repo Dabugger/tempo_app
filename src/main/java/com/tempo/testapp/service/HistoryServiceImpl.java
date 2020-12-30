@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@Transactional
 public class HistoryServiceImpl implements HistoryService{
 
     @Autowired
@@ -20,30 +19,14 @@ public class HistoryServiceImpl implements HistoryService{
     @Override
     public void addHistory(String endpoint, String username, int num1, int num2) {
         System.out.println("INSERT INTO HISTORY TABLE.");
-        historyRepository.addHistoryQuery(endpoint, username, num1, num2);
+        HistoryQuery historyQuery = new HistoryQuery(endpoint, username, num1, num2);
+        historyRepository.save(historyQuery);
     }
 
     @Override
-    public List<HistoryQuery> getPagedHistory(int size, int page) {
-
-        return historyRepository.getPagedHistory(size, page);
-
-    }
-
-
-    /*
-        @Override
-        public Page<HistoryQuery> getHistory() {
-
-            Pageable firstPageWithTwoElements = PageRequest.of(0, 2);
-            Page<HistoryQuery> allHistory = historyRepository.findAll((org.springframework.data.domain.Pageable) firstPageWithTwoElements);
-            return allHistory;
-        }
-
-    */
-    public List<HistoryQuery> findAll(Integer page, Integer size) {
-        Page<HistoryQuery> logEntries = historyRepository.findAll(PageRequest.of(page, size));
-        return logEntries.toList();
+    public List<HistoryQuery> getHistory(Integer page, Integer size) {
+        Page<HistoryQuery> history = historyRepository.findAll(PageRequest.of(page, size));
+        return history.toList();
     }
 
 }

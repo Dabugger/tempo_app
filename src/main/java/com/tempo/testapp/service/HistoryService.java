@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface HistoryService {
     void addHistory(String endpoint, String username, int num1, int num2);
-    List<HistoryQuery> getPagedHistory(int size, int page);
-
+   // List<HistoryQuery> getPagedHistory(int size, int page);
+    List<HistoryQuery> getHistory(Integer page, Integer size);
 }

@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -44,18 +45,22 @@ public class JwtUtil {
         return expiration.before(new Date());
     }
     //todo generate token for user
-    public String generateToken(User user){
+    public String generateToken(Authentication authentication){
+
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+
+
         Map<String, Object> claims = new HashMap<>();
-        return doGenerateToken(claims, user);
+        return doGenerateToken(claims, userDetails);
     }
+
     // define the claims of the token, lie issues, expiration, subject
     //sign the jwt using hs512 akgi abd secret key
-    private String doGenerateToken(Map<String, Object> claims, User user){
-        return Jwts.builder().setClaims(claims).setSubject(user.getUser_name()).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
+    private String doGenerateToken(Map<String, Object> claims, UserDetails user){
+        return Jwts.builder().setClaims(claims).setSubject(user.getUsername()).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
                 .signWith(SignatureAlgorithm.HS512, secretKey)
-                .claim("userId", user.getUser_name())
-                .claim("email", user.getEmail())
-                .claim("name", user.getName())
+                .claim("userName", user.getUsername())
                 .compact();
     }
     //validate token

@@ -15,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -59,24 +59,30 @@ g. Incluir errores http. Mensajes y descripciones para la serie 400.
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    public PasswordEncoder passwordEncoder;
+
     @GetMapping("/")
     public String index(){
         return "INDEX - hello world";
     }
     @PostMapping("/login")
-    public ResponseEntity<Map<String,String>> login(@RequestBody Map<String, Object> userMap){
+    public ResponseEntity login(@RequestBody Map<String, Object> userMap){
         System.out.println("TRYING TO LOG IN... PLEASE WAIT.");
         System.out.println(userMap.toString());
+        String user_name = (String) userMap.get("user_name");
         String email = (String) userMap.get("email");
         String password = (String) userMap.get("password");
-        User user = userService.validateUser(email,password);
+        System.out.println("PASSWORD: "+password);
+
+        ResponseEntity user = userService.validateUser(user_name, email,password);
+
         Map<String,String> map = new HashMap<>();
         map.put("msg", "Sesion Iniciada.");
 
-        //final UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUser_name());
-        final String jwt = jwtUtil.generateToken(user);
-        map.put("token", jwt);
-        return new ResponseEntity<>(map, HttpStatus.OK);
+       /// final String jwt = jwtUtil.generateToken(user);
+        //map.put("token", jwt);
+        return user;
     }
 
     @PostMapping("/signup")
@@ -90,10 +96,10 @@ g. Incluir errores http. Mensajes y descripciones para la serie 400.
 
         User user = new User();
         user.setName(name);
-        user.setUser_name(user_name);
+        user.setUsername(user_name);
         user.setEmail(email);
-        String encodedPassword = new BCryptPasswordEncoder().encode(password);
-        user.setPassword(encodedPassword);
+     //   String encodedPassword = new BCryptPasswordEncoder().encode(password);
+        user.setPassword(passwordEncoder.encode(password));
         user.setCountry(country);
 
         Map<String, String> map = new HashMap<>();
@@ -108,19 +114,21 @@ g. Incluir errores http. Mensajes y descripciones para la serie 400.
         }
 
         //final UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUser_name());
-        final String jwt = jwtUtil.generateToken(user);
-        map.put("token", jwt);
+    //    final String jwt = jwtUtil.generateToken(user);
+      //  map.put("token", jwt);
         return new ResponseEntity<>(map,HttpStatus.OK);
     }
 
     @GetMapping("/calcularSuma/{a}+{b}")
     public ResponseEntity<Map<String,String>> sumarDosNumeros(@PathVariable("a") int a, @PathVariable("b") int b, HttpServletRequest httpServletRequest){
+      //TODO AUTH
+
         //can be consumed only by logged in users
         //TODO ADD TO HISTORY
+
         final String authorizationHeader = httpServletRequest.getHeader("Authorization");
         String jwt = authorizationHeader.substring(7);
         String username = jwtUtil.getUsernameFromToken(jwt);
-        System.out.println(username);
 
         historyService.addHistory("/calcularSuma",username, a,b);
 
@@ -130,11 +138,11 @@ g. Incluir errores http. Mensajes y descripciones para la serie 400.
     }
 
     @GetMapping("/history")
-    public List<HistoryQuery> history(@RequestParam("size") int size, @RequestParam("page") int page){
+    public List<HistoryQuery> history(@RequestParam("size") Integer size, @RequestParam("page") Integer page){
         //must be connected to db
         //return json, paginated results. limit from {history.limitperpage}
 
-        return historyService.getPagedHistory(size,page);
+        return historyService.getHistory(page, size);
     }
 
     @GetMapping("/logout")
@@ -152,9 +160,9 @@ g. Incluir errores http. Mensajes y descripciones para la serie 400.
             throw new Exception("Incorrect username or password",e);
         }
 
-        User user = userService.validateUser(jwtRequest.getUsername(),jwtRequest.getPassword());
+        ResponseEntity user = userService.validateUser(jwtRequest.getUsername(),"todo:fix:email",jwtRequest.getPassword());
         //final UserDetails userDetails = userDetailsService.loadUserByUsername(jwtRequest.getUsername());
-        final String jwt = jwtUtil.generateToken(user);
-        return new JwtResponse(jwt);
+       // final String jwt = jwtUtil.generateToken(user);
+        return new JwtResponse("abc", "testuser");
     }
 }

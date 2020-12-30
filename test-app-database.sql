@@ -7,6 +7,7 @@ alter default privileges grant all on tables to tempouser;
 alter default privileges grant all on sequences to tempouser;
 
 --LOGIN, SIGNUP - manage users YES
+
 create table users(
     id integer not null primary key,
     user_name varchar(255) not null,

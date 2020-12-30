@@ -21,4 +21,11 @@ public class HistoryQuery {
     private String user_name;
     private Integer number1;
     private Integer number2;
+
+    public HistoryQuery(String endpoint, String user_name, Integer number1, Integer number2){
+        this.endpoint = endpoint;
+        this.user_name = user_name;
+        this.number1 = number1;
+        this.number2 = number2;
+    }
 }

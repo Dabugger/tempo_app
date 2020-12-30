@@ -25,8 +25,8 @@ public class MyUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
         //logic
         //need to use rolls for authorities.. check another way..
-        final User user = userRepository.findByUserName(s);
-        return new org.springframework.security.core.userdetails.User(user.getUser_name(), user.getPassword(), Collections.singleton(authority));
+        final User user = userRepository.findByUsername(s).get();
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), Collections.singleton(authority));
        // return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), user.isEnabled(), true, true, true, getAuthorities(user.getRoles()));
 
     }
